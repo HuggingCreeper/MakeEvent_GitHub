@@ -1,4 +1,5 @@
 import assert from "assert";
+import { Meteor } from 'meteor/meteor';
 import "../imports/api/tasks.tests";
 
 describe("MakeEvent", function () {
