@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
-import { Tasks } from '../api/tasks';
+import {Meteor} from 'meteor/meteor';
+import {withTracker} from 'meteor/react-meteor-data';
+import {Tasks} from '../api/tasks';
 import Task from './Task';
 import AccountsUIWrapper from './AccountsUIWrapper';
 
@@ -21,11 +21,13 @@ class App extends Component {
 
         // Find the text field via the React ref
         const text = ReactDOM.findDOMNode(this.refs.textInput).value.trim();
+        const description = ReactDOM.findDOMNode(this.refs.descriptionInput).value.trim();
 
-        Meteor.call('tasks.insert', text);
+        Meteor.call('tasks.insert', {text, description});
 
         // Clear form
         ReactDOM.findDOMNode(this.refs.textInput).value = '';
+        ReactDOM.findDOMNode(this.refs.descriptionInput).value = '';
     }
 
     toggleHideCompleted() {
@@ -48,11 +50,12 @@ class App extends Component {
                     key={task._id}
                     id={task._id}
                     text={task.text}
+                    description={task.description}
                     username={task.username}
                     checked={task.checked}
                     private={task.private}
                     showPrivateButton={showPrivateButton}
-                    />
+                />
             );
         });
     }
@@ -69,19 +72,28 @@ class App extends Component {
                             readOnly
                             checked={this.state.hideCompleted}
                             onClick={this.toggleHideCompleted.bind(this)}
-                            />
+                        />
                         Hide Completed Tasks
                     </label>
 
-                    <AccountsUIWrapper />
+                    <AccountsUIWrapper/>
 
-                    { this.props.currentUser ?
-                        <form className="new-task" onSubmit={this.handleSubmit.bind(this)} >
+                    {this.props.currentUser ?
+                        <form className="new-task" onSubmit={this.handleSubmit.bind(this)}>
                             <input
                                 type="text"
                                 ref="textInput"
                                 placeholder="Type to add new tasks"
-                                />
+                            />
+                            <input
+                                type="description"
+                                ref="descriptionInput"
+                                placeholder="Descrip it"
+                            />
+                            <input
+                                type="submit"
+                                value="Submit"
+                            />
                         </form> : ''
                     }
                 </header>
@@ -98,8 +110,8 @@ export default withTracker(() => {
     Meteor.subscribe('tasks');
 
     return {
-        tasks: Tasks.find({}, { sort: { createdAt: -1 } }).fetch(),
-        incompleteCount: Tasks.find({ checked: { $ne: true } }).count(),
+        tasks: Tasks.find({}, {sort: {createdAt: -1}}).fetch(),
+        incompleteCount: Tasks.find({checked: {$ne: true}}).count(),
         currentUser: Meteor.user(),
     };
 })(App);
